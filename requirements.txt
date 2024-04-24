@@ -2,7 +2,6 @@ pandas
 yfinance
 numpy
 matplotlib
-pypfopt
 plotly
 streamlit
 subprocess
