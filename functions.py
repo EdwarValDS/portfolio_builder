@@ -2,6 +2,8 @@ import pandas as pd
 import yfinance as yf
 import numpy as np
 import matplotlib as plt
+import subprocess
+subprocess.run(["git", "clone", "https://github.com/robertmartin8/PyPortfolioOpt.git"])
 
 from pypfopt import risk_models
 from pypfopt import expected_returns
@@ -14,6 +16,8 @@ import plotly.express as px
 from pypfopt import plotting
 
 from pandas.tseries.offsets import MonthEnd, YearEnd, Week
+
+
 
 def price_data(tickers, start_date, end_date, column):
 
