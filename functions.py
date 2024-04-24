@@ -5,15 +5,14 @@ import matplotlib as plt
 import subprocess
 subprocess.run(["git", "clone", "https://github.com/robertmartin8/PyPortfolioOpt.git"])
 
-from PyPortfolioOpt import risk_models
-from PyPortfolioOpt import expected_returns
-from PyPortfolioOpt.efficient_frontier import EfficientFrontier
+from pypfopt import risk_models
+from pypfopt import expected_returns
+from pypfopt.efficient_frontier import EfficientFrontier
 import plotly.graph_objects as go
 from datetime import datetime, timedelta, date
 
 import streamlit as st
 import plotly.express as px
-
 
 from pandas.tseries.offsets import MonthEnd, YearEnd, Week
 
