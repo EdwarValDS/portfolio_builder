@@ -27,14 +27,17 @@ if own_portfolio_input:
 
     # Calculate returns
     returns = data.pct_change()
-
+    cum_returns = returns.dropna().cumsum()*100
     # Show the correlation matrix
     #st.header("Correlation Matrix")
     #st.write("Use this matrix for analyzing assets correlation")
-    #sns.set_style("white")
-    #plt.figure(figsize=(10, 8))
-    #ax = sns.heatmap(correlations, annot=True)
-    #st.plot(plt)  # Show the plot in Streamlit
+    sns.set_style("white")
+    plt.figure(figsize=(10, 8))
+    ax = sns.heatmap(correlations, annot=True)
+    plt.title('Correlation Matrix')
+    plt.show()
+
+    line_chart_st(cum_returns, cum_returns.columns.to_list(), "Assets returns over time")
 
 else:
     # Wait for the user to enter assets
@@ -109,19 +112,17 @@ if train_periods and test_periods and period_type and benchmark_asset:
         time = "W"  
     
     data = data.resample(time).agg({"benchmark_profit":"last"})
-    data = data.reset_index()
-    final_results = final_results.reset_index()
     
-    plot_results = pd.merge(final_results, data, on="Date")
-    plot_results = plot_results.set_index("Date")
+    max_dd = max_drawdown(final_results["Total_profit"])
+
+    st.write("Max drawdown (%):", round(max_dd,2))
     
     # Results
     
     st.header("Backtest results")
     
     st.write("Profit is measured as cumulative return of prices over time in %")
-    line_chart_st(final_results, ["Total_profit"],"Portfolio strategy total return over time")
-    line_chart_st(data, ["benchmark_profit"],"Benchmark return over time")
+    line_chart_2_st(final_results, data, "Total_profit", "benchmark_profit", "Portfolio strategy total return vs benchmark return over time")
     
     line_chart_st(weights_data, weights_data.columns.to_list(), "Weights over time")
 
@@ -134,11 +135,11 @@ own_portfolio_input = st.text_input("Enter assets separated by comma for buildin
 own_portfolio = [asset.strip() for asset in own_portfolio_input.split(',')]
 #initial_date = st.date_input("Enter start date (just put a date bigger than your training amount):", date(2021, 1, 1))
 #last_date = st.date_input("Enter end date:", date(2024, 1, 1))
-initial_date = "2000-01-01"
+initial_date = "2010-01-01"
 today = date.today().strftime('%Y-%m-%d')
 
 current_date = today 
-train_periods = st.text_input("Enter the amount of periods that you used in backtesting")
+train_periods = st.text_input("Enter the amount of periods that you used in backtesting for training")
 #test_periods = st.text_input("Enter the amount of periods for testing the portfolio")
 period_type = st.text_input("Enter the type of period you used in backtesting")
 
@@ -149,7 +150,11 @@ if own_portfolio_input and train_periods and period_type:
     
     final_weights = pd.DataFrame(round(real_time_weights,4)*100).rename(columns={0: 'Weights in %'})
     
+    final_weights = round(final_weights,2)
     st.header("Weights for the last moment where you had had to rebalance your portfolio")
     st.table(final_weights)
+
+    weights_plot_st(final_weights)
+
     st.header("Last prices data")
     st.table(train_window)

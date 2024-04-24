@@ -1,7 +1,8 @@
 import pandas as pd
 import yfinance as yf
 import numpy as np
-import matplotlib as plt
+import matplotlib.pyplot as plt
+import seaborn as sns
 #import subprocess
 #subprocess.run(["git", "clone", "https://github.com/robertmartin8/PyPortfolioOpt.git"])
 
@@ -41,7 +42,24 @@ def line_chart(data, variables_list, title, width=1000, height=500, y_title=""):
 
     fig.show()
 
-def line_chart_st(data, variables_list, title, width=1000, height=500, y_title=""):
+def line_chart_2(backtest_results, benchmark_data, var1, var2, title, width=1000, height=500, y_title=""):
+    fig = go.Figure()
+
+    fig.add_trace(go.Scatter(x=backtest_results.index, y=backtest_results[var1], mode='lines', name=var1, fill="tozeroy", line=dict(color="rgba(39, 255, 54, 0.8)")))
+    fig.add_trace(go.Scatter(x=benchmark_data.index, y=benchmark_data[var2], mode='lines', name=var2, fill="tozeroy", line=dict(color="rgba(24, 172, 230, 0.5)")))
+
+    fig.update_layout(
+    title=title,
+    xaxis_title='Date',
+    yaxis_title=y_title,
+    template='plotly_dark',
+    height=height,
+    width=width
+    )
+
+    fig.show()
+
+def line_chart_st(data, variables_list, title, width=600, height=500, y_title=""):
     fig = px.line()
 
     for var in variables_list:
@@ -54,6 +72,23 @@ def line_chart_st(data, variables_list, title, width=1000, height=500, y_title="
         template='plotly_dark',
         height=height,
         width=width
+    )
+
+    st.plotly_chart(fig)
+
+def line_chart_2_st(backtest_results, benchmark_data, var1, var2, title, width=600, height=500, y_title=""):
+    fig = go.Figure()
+
+    fig.add_trace(go.Scatter(x=backtest_results.index, y=backtest_results[var1], mode='lines', name=var1, fill="tozeroy", line=dict(color="rgba(39, 255, 54, 0.8)")))
+    fig.add_trace(go.Scatter(x=benchmark_data.index, y=benchmark_data[var2], mode='lines', name=var2, fill="tozeroy", line=dict(color="rgba(24, 172, 230, 0.5)")))
+
+    fig.update_layout(
+    title=title,
+    xaxis_title='Date',
+    yaxis_title=y_title,
+    template='plotly_dark',
+    height=height,
+    width=width
     )
 
     st.plotly_chart(fig)
@@ -182,3 +217,44 @@ def get_real_time_weights(data, initial_date, current_date, train_periods, perio
             start_date += pd.DateOffset(years=1)
     
     return weights_array, train_window
+
+def weights_plot(final_weights):
+
+    fig = go.Figure()
+
+    fig.add_trace(go.Bar(x=final_weights.index,
+                         y=final_weights['Weights in %'],
+                         marker_color='rgba(39, 93, 245, 0.8)',
+                         text=final_weights['Weights in %'],
+                         textposition='auto'))
+
+    fig.update_layout(title='Asset Weights in the Portfolio',
+                      xaxis=dict(title='Assets', tickangle=45),
+                      yaxis=dict(title='Weights (%)'),
+                      template='plotly_dark',
+                      autosize=False,
+                      width=800,
+                      height=500)
+
+    fig.show()
+
+    
+def weights_plot_st(final_weights):
+
+    fig = go.Figure()
+
+    fig.add_trace(go.Bar(x=final_weights.index,
+                         y=final_weights['Weights in %'],
+                         marker_color='rgba(39, 93, 245, 0.8)',
+                         text=final_weights['Weights in %'],
+                         textposition='auto'))
+
+    fig.update_layout(title='Asset Weights in the Portfolio',
+                      xaxis=dict(title='Assets', tickangle=45),
+                      yaxis=dict(title='Weights (%)'),
+                      template='plotly_dark',
+                      autosize=False,
+                      width=600,
+                      height=500)
+
+    st.plotly_chart(fig)
