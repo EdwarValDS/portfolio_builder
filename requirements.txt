@@ -5,4 +5,4 @@ matplotlib
 pypfopt
 plotly
 streamlit
-git clone https://github.com/robertmartin8/PyPortfolioOpt.git
+PyPortfolioOpt
