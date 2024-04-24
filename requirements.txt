@@ -4,4 +4,4 @@ numpy
 matplotlib
 plotly
 streamlit
-pypfopt
+PyPortfolioOpt
