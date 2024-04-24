@@ -1,7 +1,7 @@
 pandas
 yfinance
 numpy
-matplotlib.pyplot 
+matplotlib
 seaborn 
 plotly.express 
 pypfopt 

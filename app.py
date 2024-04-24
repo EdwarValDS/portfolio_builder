@@ -1,7 +1,7 @@
 import pandas as pd
 import yfinance as yf
 import numpy as np
-import matplotlib.pyplot as plt
+import matplotlib as plt
 import seaborn as sns
 import plotly.express as px
 
@@ -40,12 +40,12 @@ if own_portfolio_input:
     returns = data.pct_change()
 
     # Show the correlation matrix
-    st.header("Correlation Matrix")
-    st.write("Use this matrix for analyzing assets correlation")
-    sns.set_style("white")
-    plt.figure(figsize=(10, 8))
-    ax = sns.heatmap(correlations, annot=True)
-    st.pyplot(plt)  # Show the plot in Streamlit
+    #st.header("Correlation Matrix")
+    #st.write("Use this matrix for analyzing assets correlation")
+    #sns.set_style("white")
+    #plt.figure(figsize=(10, 8))
+    #ax = sns.heatmap(correlations, annot=True)
+    #st.plot(plt)  # Show the plot in Streamlit
 
 else:
     # Wait for the user to enter assets
@@ -131,7 +131,8 @@ if train_periods and test_periods and period_type and benchmark_asset:
     st.header("Backtest results")
     
     st.write("Profit is measured as cumulative return of prices over time in %")
-    line_chart_st(plot_results, ["Total_profit","benchmark_profit"],"Portfolio strategy total return vs benchmark return over time")
+    line_chart_st(final_results, ["Total_profit"],"Portfolio strategy total return over time")
+    line_chart_st(data, ["benchmark_profit"],"Benchmark return over time")
     
     line_chart_st(weights_data, weights_data.columns.to_list(), "Weights over time")
 

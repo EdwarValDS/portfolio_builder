@@ -1,7 +1,7 @@
 import pandas as pd
 import yfinance as yf
 import numpy as np
-import matplotlib.pyplot as plt
+import matplotlib as plt
 
 from pypfopt import risk_models
 from pypfopt import expected_returns
