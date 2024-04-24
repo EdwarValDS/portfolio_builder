@@ -7,8 +7,7 @@ from functions import *
 warnings.filterwarnings("ignore")
 
 import streamlit as st
-import subprocess
-subprocess.run(["git", "clone", "https://github.com/robertmartin8/PyPortfolioOpt.git"])
+
 
 st.title("Advanced Portfolio Builder")
 
