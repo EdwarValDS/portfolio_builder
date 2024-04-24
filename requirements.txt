@@ -2,11 +2,6 @@ pandas
 yfinance
 numpy
 matplotlib
-seaborn 
-plotly.express 
-pypfopt 
-pypfopt.efficient_frontier 
-plotly.graph_objects 
-datetime 
-pandas.tseries.offsets 
+pypfopt
+plotly
 streamlit

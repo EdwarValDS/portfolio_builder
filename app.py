@@ -1,17 +1,5 @@
 import pandas as pd
-import yfinance as yf
-import numpy as np
-import matplotlib as plt
-import seaborn as sns
-import plotly.express as px
-
-from pypfopt import risk_models
-from pypfopt import expected_returns
-from pypfopt.efficient_frontier import EfficientFrontier
-import plotly.graph_objects as go
-from datetime import datetime, timedelta, date
-from pypfopt import plotting
-from pandas.tseries.offsets import MonthEnd, YearEnd, Week
+from datetime import date
 
 import warnings
 
