@@ -1,0 +1,12 @@
+pandas
+yfinance
+numpy
+matplotlib.pyplot 
+seaborn 
+plotly.express 
+pypfopt 
+pypfopt.efficient_frontier 
+plotly.graph_objects 
+datetime 
+pandas.tseries.offsets 
+streamlit
