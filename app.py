@@ -8,7 +8,7 @@ warnings.filterwarnings("ignore")
 
 import streamlit as st
 
-
+st.set_theme('dark')
 st.title("Advanced Portfolio Builder")
 
 st.header("Initial Portfolio Analysis")
