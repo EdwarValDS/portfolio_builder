@@ -17,6 +17,15 @@ st.set_page_config(page_title='Portfolio Strategy Builder',page_icon='💼') #la
 
 st.set_option('deprecation.showPyplotGlobalUse', False)
 
+st.markdown(
+        """
+        <style>
+        {% include 'styles.css' %}
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+
 menu_selection = st.sidebar.radio("Navigation", ["Portfolio Analysis", "Theory"])
 
 linkedin_url = "https://www.linkedin.com/in/edwar-valenzuela/?originalSubdomain=co"
@@ -236,8 +245,8 @@ if menu_selection == "Portfolio Analysis":
             st.write(train_window)
         except ValueError:
             st.warning("Please enter a valid number for the number of periods.")
-    else:
-        st.error("Please enter data properly.")
+    #else:
+    #    st.error("Please enter data properly.")
 
     st.write("")
     st.write("")
