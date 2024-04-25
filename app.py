@@ -40,17 +40,14 @@ if menu_selection == "Portfolio Analysis":
 
     st.header("Logic behind")
 
-    markdown_text = """
-    When it comes to optimizing a portfolio, the question arises of how much past data to use, how often to rebalance, or which assets represent a better portfolio. When an optimal portfolio is found in the past, whether seeking to reduce volatility or maximize profit, there's a risk of over-optimization that may not guarantee the same results in the future.
-
-    However, there are techniques that can enable better decision-making when it comes to portfolio management. By using rolling window data splitting, this application allows you to simulate portfolio strategies by specifying the size of the dataset to optimize portfolios, test the portfolio itself over a certain number of periods, and determine an optimal period for rebalancing the portfolio. All of this through backtesting based on the amount of data you specify to download from the past.
-
-    Afterwards, you can infer what the performance of your portfolio strategy would have been using a certain amount of past data and having rebalanced the portfolio at regular intervals. Similarly, you can decide whether to maximize returns or reduce risk by comparing the performance of the strategy with different weights used over time against an index or benchmark such as the S&P500.
-
-    In the graph, you can observe the logic behind portfolio construction and testing. In this case, data from 2023 to 2024 of 3 assets was used. The first 3 months are used to find an optimal portfolio, then 1 month to find the portfolio's performance as if you had invested in real-time. This process is repeated throughout the year, with monthly rebalancing. You can specify these parameters when testing the portfolio strategy in the past.
-    """
-
-    st.markdown(markdown_text)
+    st.markdown("""
+    <div style="text-align: justify">
+        <p>When it comes to optimizing a portfolio, the question arises of how much past data to use, how often to rebalance, or which assets represent a better portfolio. When an optimal portfolio is found in the past, whether seeking to reduce volatility or maximize profit, there's a risk of over-optimization that may not guarantee the same results in the future.</p>
+        <p>However, there are techniques that can enable better decision-making when it comes to portfolio management. By using rolling window data splitting, this application allows you to simulate portfolio strategies by specifying the size of the dataset to optimize portfolios, test the portfolio itself over a certain number of periods, and determine an optimal period for rebalancing the portfolio. All of this through backtesting based on the amount of data you specify to download from the past.</p>
+        <p>Afterwards, you can infer what the performance of your portfolio strategy would have been using a certain amount of past data and having rebalanced the portfolio at regular intervals. Similarly, you can decide whether to maximize returns or reduce risk by comparing the performance of the strategy with different weights used over time against an index or benchmark such as the S&P500.</p>
+        <p>In the graph, you can observe the logic behind portfolio construction and testing. In this case, data from 2023 to 2024 of 3 assets was used. The first 3 months are used to find an optimal portfolio, then 1 month to find the portfolio's performance as if you had invested in real-time. This process is repeated throughout the year, with monthly rebalancing. You can specify these parameters when testing the portfolio strategy in the past.</p>
+    </div>
+    """, unsafe_allow_html=True)
 
 
     file_ = open("ventanas_rodantes.gif", "rb")
@@ -229,7 +226,7 @@ if menu_selection == "Portfolio Analysis":
     period_options = ["months", "weeks", "years"]
     period_type = st.selectbox("Select the period you used in backtesting", period_options)
 
-    condition = st.selectbox("Choose between maximizing sharpe ratio or reduce volatility.", 
+    condition = st.selectbox("Choose between maximizing sharpe ratio or reduce volatility for getting weights.", 
                                 ["Maximize Sharpe Ratio", "Reduce Volatility"])
     if condition == "Maximize Sharpe Ratio":
         pf_condition = "sharpe"

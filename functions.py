@@ -183,7 +183,7 @@ def get_results_portfolio(train_window, test_window, condition = "sharpe"):
 
     return profit, date_result, error, weights_array
 
-def get_real_time_weights(data, initial_date, current_date, train_periods, period_type="months"):
+def get_real_time_weights(data, initial_date, current_date, train_periods, period_type="months", condition = "sharpe"):
     start_date = pd.to_datetime(initial_date)
     end_date = pd.to_datetime(current_date)
     
@@ -207,8 +207,15 @@ def get_real_time_weights(data, initial_date, current_date, train_periods, perio
         
         ef = EfficientFrontier(mu, sigma)
 
+        if condition == "sharpe":
+            pf_condition = ef.max_sharpe()
+        elif condition == "volatility":
+            pf_condition = ef.min_volatility()
+        else:
+            pass
+
         try:
-            weights = ef.max_sharpe()
+            weights = pf_condition
             weights_array = pd.Series(weights)
         except Exception as e:
             # Use equal weights in error case
@@ -252,18 +259,18 @@ def weights_plot(final_weights):
 def weights_plot_st(final_weights):
     plt.figure(figsize=(10, 6))
     plt.bar(final_weights.index, final_weights['Weights in %'], color='tab:blue')
-    plt.title('Asset Weights in the Portfolio', fontsize=16, color='white')
-    plt.xlabel('Assets', fontsize=12, color='white')
-    plt.ylabel('Weights (%)', fontsize=12, color='white')
-    plt.xticks(rotation=45, color='white')
-    plt.yticks(color='white')
-    plt.gca().set_facecolor('black')
+    plt.title('Asset Weights in the Portfolio', fontsize=16, color='black')
+    plt.xlabel('Assets', fontsize=12, color='black')
+    plt.ylabel('Weights (%)', fontsize=12, color='black')
+    plt.xticks(rotation=45, color='black')
+    plt.yticks(color='black')
+ 
     plt.grid(axis='y', linestyle='--', alpha=0.5)
-
+    plt.gca().set_facecolor('#121212') 
     for i, val in enumerate(final_weights['Weights in %']):
         plt.text(i, val + 0.5, f'{val}%', color='white', ha='center', fontsize=15)
+ 
 
     plt.tight_layout()
-
     # Mostrar el gráfico
     st.pyplot()
