@@ -6,4 +6,3 @@ plotly
 streamlit
 PyPortfolioOpt
 seaborn
-base64
