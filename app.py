@@ -78,7 +78,7 @@ if menu_selection == "Portfolio Analysis":
 
     own_portfolio_input = st.text_input("Enter two or more assets tickers separated by comma (example: AAPL, BTC-USD, CL=F, GC=F)")
     own_portfolio = [asset.strip().upper() for asset in own_portfolio_input.split(',')]
-    initial_date = st.date_input("Enter start date:", date(2023, 1, 1))
+    initial_date = st.date_input("Enter start date:", date(2016, 1, 1))
     last_date = st.date_input("Enter end date:", date(2024, 1, 1))
 
 
@@ -115,16 +115,16 @@ if menu_selection == "Portfolio Analysis":
 
     st.markdown("### Example:")
     st.markdown("""
-    - **Start Date:** 2023-01-01
+    - **Start Date:** 2016-01-01
     - **End Date:** 2024-01-01
-    - **Train Periods:** 3
+    - **Train Periods:** 5
     - **Test Periods:** 1
     - **Period Type:** Months
-    - Using this configuration, you will simulate optimizing your portfolio using the last 3 months' data for investing in the next month and rebalancing the portfolio monthly.
+    - Using this configuration, you will simulate optimizing your portfolio using the last 5 months' data for investing in the next month and rebalancing the portfolio monthly.
     """)
 
     st.header("Inputs")
-    train_periods = st.text_input("Enter the number of periods for building(optimize) the portfolio in each iteration", "3")
+    train_periods = st.text_input("Enter the number of periods for building(optimize) the portfolio in each iteration", "5")
     test_periods = st.text_input("Enter the number of periods for testing the portfolio in each iteration", "1")
 
     period_options = ["months", "weeks", "years"]
@@ -214,7 +214,7 @@ if menu_selection == "Portfolio Analysis":
 
     st.header("Get your portfolio in real time")
 
-    own_portfolio_input = st.text_input("Enter assets separated by comma for building your portfolio in real time:")
+    own_portfolio_input = st.text_input("Enter assets tickers separated by comma for building your portfolio in real time:")
     own_portfolio = [asset.strip() for asset in own_portfolio_input.split(',')]
     #initial_date = st.date_input("Enter start date (just put a date bigger than your training amount):", date(2021, 1, 1))
     #last_date = st.date_input("Enter end date:", date(2024, 1, 1))
@@ -222,7 +222,7 @@ if menu_selection == "Portfolio Analysis":
     today = date.today().strftime('%Y-%m-%d')
 
     current_date = today 
-    train_periods = st.text_input("Enter the numbre of periods that you used in backtesting for optimizing portfolios")
+    train_periods = st.text_input("Enter the number of periods that you used in backtesting for optimizing portfolios")
     #test_periods = st.text_input("Enter the amount of periods for testing the portfolio")
     period_options = ["months", "weeks", "years"]
     period_type = st.selectbox("Select the period you used in backtesting", period_options)
