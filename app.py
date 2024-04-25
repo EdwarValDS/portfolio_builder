@@ -259,8 +259,7 @@ if menu_selection == "Portfolio Analysis":
     st.write("")
     st.markdown(f"<p style='text-align:center;'>Elaborated by Edwar Valenzuela <br><br> <a href='{linkedin_url}'>Linkedin</a></p>", unsafe_allow_html=True)
 
-
-elif menu_selection == "What is Behind?":
+elif menu_selection == "Theory":
     # Explanation text
     st.title("Explanation")
 
