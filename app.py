@@ -152,9 +152,9 @@ if menu_selection == "Portfolio Analysis":
 
 
         for train_window, test_window in zip(windows_train, windows_test):
-            profit, date, error, weights_result = get_results_portfolio(train_window, test_window, pf_condition)
+            profit, date_result, error, weights_result = get_results_portfolio(train_window, test_window, pf_condition)
             profits.append(profit)
-            dates.append(date)
+            dates.append(date_result)
             errors.append(error)
             weights_results.append(weights_result)
 
@@ -226,18 +226,18 @@ if menu_selection == "Portfolio Analysis":
     period_options = ["months", "weeks", "years"]
     period_type = st.selectbox("Select the period you used in backtesting", period_options)
 
-    condition = st.selectbox("Choose between maximizing sharpe ratio or reduce volatility for getting weights.", 
+    condition_real_time = st.selectbox("Choose between maximizing sharpe ratio or reduce volatility for getting weights.", 
                                 ["Maximize Sharpe Ratio", "Reduce Volatility"])
-    if condition == "Maximize Sharpe Ratio":
-        pf_condition = "sharpe"
-    elif condition == "Reduce Volatility":
-        pf_condition = "volatility"
+    if condition_real_time == "Maximize Sharpe Ratio":
+        pf_condition_real_time= "sharpe"
+    elif condition_real_time == "Reduce Volatility":
+        pf_condition_real_time = "volatility"
 
     if own_portfolio_input and train_periods and period_type:
         try:
             train_periods = int(train_periods)
             data_realtime = price_data(own_portfolio, initial_date,today, "Close")
-            real_time_weights, train_window = get_real_time_weights(data_realtime, initial_date, current_date, train_periods, period_type, pf_condition)
+            real_time_weights, train_window = get_real_time_weights(data_realtime, initial_date, current_date, train_periods, period_type, pf_condition_real_time)
 
             final_weights = pd.DataFrame(round(real_time_weights,4)*100).rename(columns={0: 'Weights in %'})
 

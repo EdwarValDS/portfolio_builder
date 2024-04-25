@@ -138,28 +138,35 @@ def generate_windows(data, initial_date, last_date, train_periods, test_periods,
     
     return windows_train, windows_test
 
-def get_results_portfolio(train_window, test_window, condition = "sharpe"):
+def get_results_portfolio(train_window, test_window, pf_condition = "sharpe"):
 
     mu = expected_returns.mean_historical_return(train_window)
     sigma = risk_models.sample_cov(train_window)
     
     ef = EfficientFrontier(mu, sigma)
 
-    if condition == "sharpe":
-        pf_condition = ef.max_sharpe()
-    elif condition == "volatility":
-        pf_condition = ef.min_volatility()
-    else:
-        pass
+    #pf_condition = ef.max_sharpe()
 
+    try: 
+        if pf_condition == "sharpe":
+            pf_condition = ef.max_sharpe()
+        elif pf_condition == "volatility":
+            pf_condition = ef.min_volatility()
+    except:
+        pf_condition = ef.min_volatility()
+    #else:
+    #    pass
     try:
         weights = pf_condition
         weights_array = pd.Series(weights)
-    except Exception as e:
+    except:
         # Use equal weights in error case
         try:
-            weights = [1 / len(mu)] * len(mu)
-            weights_array = pd.Series(weights, index=mu.index)
+            try:
+                weights = ef.min_volatility()
+            except:
+                weights = [1 / len(mu)] * len(mu)
+                weights_array = pd.Series(weights, index=mu.index)
         except:
             # If weights cannot be calculated, set all weights to 0
             weights_array = pd.Series([0] * len(mu), index=mu.index)
@@ -183,7 +190,7 @@ def get_results_portfolio(train_window, test_window, condition = "sharpe"):
 
     return profit, date_result, error, weights_array
 
-def get_real_time_weights(data, initial_date, current_date, train_periods, period_type="months", condition = "sharpe"):
+def get_real_time_weights(data, initial_date, current_date, train_periods, period_type="months", pf_condition = "sharpe"):
     start_date = pd.to_datetime(initial_date)
     end_date = pd.to_datetime(current_date)
     
@@ -207,12 +214,13 @@ def get_real_time_weights(data, initial_date, current_date, train_periods, perio
         
         ef = EfficientFrontier(mu, sigma)
 
-        if condition == "sharpe":
-            pf_condition = ef.max_sharpe()
-        elif condition == "volatility":
+        try: 
+            if pf_condition == "sharpe":
+                pf_condition = ef.max_sharpe()
+            elif pf_condition == "volatility":
+                pf_condition = ef.min_volatility()
+        except:
             pf_condition = ef.min_volatility()
-        else:
-            pass
 
         try:
             weights = pf_condition
