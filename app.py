@@ -36,7 +36,7 @@ st.sidebar.markdown(f"[Linkedin]({linkedin_url})")
 
 if menu_selection == "Portfolio Analysis":
 
-    st.title("Advanced Portfolio Builder")
+    st.title("Portfolio Strategy Builder")
 
     st.header("Logic behind")
 
