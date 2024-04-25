@@ -17,14 +17,14 @@ st.set_page_config(page_title='Portfolio Strategy Builder',page_icon='💼') #la
 
 st.set_option('deprecation.showPyplotGlobalUse', False)
 
-st.markdown(
-        """
-        <style>
-        {% include 'styles.css' %}
-        </style>
-        """,
-        unsafe_allow_html=True
-    )
+#st.markdown(
+#        """
+#        <style>
+#        {% include 'styles.css' %}
+#        </style>
+#        """,
+#        unsafe_allow_html=True
+#    )
 
 menu_selection = st.sidebar.radio("Navigation", ["Portfolio Analysis", "Theory"])
 
