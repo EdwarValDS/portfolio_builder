@@ -76,7 +76,7 @@ if menu_selection == "Portfolio Analysis":
                 return False
         return True
 
-    own_portfolio_input = st.text_input("Enter two or more assets tickers separated by comma (example: AAPL, BTC-USD, CL=F, GC=F)")
+    own_portfolio_input = st.text_input("Enter two or more assets tickers separated by comma (example: AAPL, BTC-USD, GC=F)")
     own_portfolio = [asset.strip().upper() for asset in own_portfolio_input.split(',')]
     initial_date = st.date_input("Enter start date:", date(2016, 1, 1))
     last_date = st.date_input("Enter end date:", date(2024, 1, 1))
