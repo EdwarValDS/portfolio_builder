@@ -1,6 +1,10 @@
 import pandas as pd
 from datetime import date
 
+import seaborn as sns
+import matplotlib.pyplot as plt
+import base64
+
 import warnings
 
 from functions import *
@@ -9,7 +13,11 @@ warnings.filterwarnings("ignore")
 import streamlit as st
 
 
-menu_selection = st.sidebar.radio("Navigation", ["Portfolio Analysis", "What is Behind?"])
+st.set_page_config(page_title='Portfolio Strategy Builder',page_icon='💼') #layout="wide")
+
+st.set_option('deprecation.showPyplotGlobalUse', False)
+
+menu_selection = st.sidebar.radio("Navigation", ["Portfolio Analysis", "Theory"])
 
 linkedin_url = "https://www.linkedin.com/in/edwar-valenzuela/?originalSubdomain=co"
 
@@ -20,40 +28,74 @@ if menu_selection == "Portfolio Analysis":
 
     st.title("Advanced Portfolio Builder")
 
+    st.header("Logic behind")
+
+    st.write("""
+    When it comes to optimizing a portfolio, the question arises of how much past data to use, how often to rebalance, or which assets represent a better portfolio. When an optimal portfolio is found in the past, whether seeking to reduce volatility or maximize profit, there's a risk of over-optimization that may not guarantee the same results in the future.
+
+    However, there are techniques that can enable better decision-making when it comes to portfolio management. By using rolling window data splitting, this application allows you to simulate portfolio strategies by specifying the size of the dataset to optimize portfolios, test the portfolio itself over a certain number of periods, and determine an optimal period for rebalancing the portfolio. All of this through backtesting based on the amount of data you specify to download from the past.
+
+    Afterwards, you can infer what the performance of your portfolio strategy would have been using a certain amount of past data and having rebalanced the portfolio at regular intervals. Similarly, you can decide whether to maximize returns or reduce risk by comparing the performance of the strategy with different weights used over time against an index or benchmark such as the S&P500.
+
+    In the graph, you can observe the logic behind portfolio construction and testing. In this case, data from 2023 to 2024 of 3 assets was used. The first 3 months are used to find an optimal portfolio, then 1 month to find the portfolio's performance as if you had invested in real-time. This process is repeated throughout the year, with monthly rebalancing. You can specify these parameters when testing the portfolio strategy in the past.
+    """)
+
+
+    file_ = open("ventanas_rodantes.gif", "rb")
+    contents = file_.read()
+    data_url = base64.b64encode(contents).decode("utf-8")
+    file_.close()
+    #"""<h2 style='text-align: center;'>Logic behind</h2>"""
+    st.markdown(
+
+        f'<img src="data:image/gif;base64,{data_url}" alt="cat gif">',
+        unsafe_allow_html=True,
+    )
+
     st.header("Initial Portfolio Analysis")
 
 
-    st.write("You can search tickers in https://stockanalysis.com/stocks/")
+    st.write("You can search tickers in https://stockanalysis.com/stocks/ or https://finance.yahoo.com/")
 
     # Price data
 
-    own_portfolio_input = st.text_input("Enter assets tickers separated by comma (example: AAPL, BTC-USD, CL=F, GC=F)")
-    own_portfolio = [asset.strip() for asset in own_portfolio_input.split(',')]
-    initial_date = st.date_input("Enter start date:", date(2015, 1, 1))
+    def validate_tickers(tickers):
+        for ticker in tickers:
+            if not yf.Ticker(ticker).history(period="1d").empty and len(tickers)>1:
+                continue
+            else:
+                return False
+        return True
+
+    own_portfolio_input = st.text_input("Enter two or more assets tickers separated by comma (example: AAPL, BTC-USD, CL=F, GC=F)")
+    own_portfolio = [asset.strip().upper() for asset in own_portfolio_input.split(',')]
+    initial_date = st.date_input("Enter start date:", date(2023, 1, 1))
     last_date = st.date_input("Enter end date:", date(2024, 1, 1))
 
+    data = pd.DataFrame
+
     if own_portfolio_input:
-        # Get price data
-        data = price_data(own_portfolio, initial_date, last_date, "Close")
-        correlations = data.corr()
-
-        # Calculate returns
-        returns = data.pct_change()
-        cum_returns = returns.dropna().cumsum()*100
-        # Show the correlation matrix
-        #st.header("Correlation Matrix")
-        #st.write("Use this matrix for analyzing assets correlation")
-        sns.set_style("white")
-        plt.figure(figsize=(10, 8))
-        ax = sns.heatmap(correlations, annot=True)
-        plt.title('Correlation Matrix')
-        plt.show()
-
-        line_chart_st(cum_returns, cum_returns.columns.to_list(), "Assets returns over time")
-
+        if validate_tickers(own_portfolio):
+            # Get price data
+            data = price_data(own_portfolio, initial_date, last_date, "Close")
+            # Continue with data analysis
+            correlations = data.corr()
+            returns = data.pct_change()
+            cum_returns = returns.dropna().cumsum()*100
+            # Show the correlation matrix
+            sns.set_style("white")
+            plt.figure(figsize=(10, 8))
+            ax = sns.heatmap(correlations, annot=True)
+            plt.title('Correlation Matrix', color="white")
+            plt.tick_params(axis='x', colors='white')  # Establecer el color de los valores del eje x
+            plt.tick_params(axis='y', colors='white') 
+            st.pyplot()
+            line_chart_st(cum_returns, cum_returns.columns.to_list(), "Assets returns over time")
+        else:
+            st.error("One or more tickers not found or incorrectly written. Please check and try again.")
     else:
-        # Wait for the user to enter assets
-        st.info("Please enter assets to continue.")
+        st.warning("Please enter assets before attempting to download data.")
+  
     # Portfolio backtest 
 
     st.header("Portfolio Backtest")
@@ -65,20 +107,22 @@ if menu_selection == "Portfolio Analysis":
 
     st.markdown("### Example:")
     st.markdown("""
-    - **Start Date:** 2015-01-01
+    - **Start Date:** 2023-01-01
     - **End Date:** 2024-01-01
     - **Train Periods:** 3
     - **Test Periods:** 1
     - **Period Type:** Months
-
-    Using this configuration, you will simulate optimizing your portfolio using the last 3 months' data for investing in the next month and rebalancing the portfolio monthly.
+    - Using this configuration, you will simulate optimizing your portfolio using the last 3 months' data for investing in the next month and rebalancing the portfolio monthly.
     """)
 
+    st.header("Inputs")
+    train_periods = st.text_input("Enter the number of periods for building(optimize) the portfolio in each iteration", "3")
+    test_periods = st.text_input("Enter the number of periods for testing the portfolio in each iteration", "1")
 
-    train_periods = st.text_input("Enter the amount of periods for training or build the portfolio", "3")
-    test_periods = st.text_input("Enter the amount of periods for testing the portfolio", "1")
-    period_type = st.text_input("Enter the period you want to use: years, months or weeks")
+    period_options = ["months", "weeks", "years"]
+    period_type = st.selectbox("Select the period you want to use:", period_options)
     benchmark_asset = st.text_input("Choose a asset(ticker) as a benchmark. S&P500 is for default", "^SPX")
+
     condition = st.selectbox("Choose between maximizing sharpe ratio or reduce volatility.", 
                                 ["Maximize Sharpe Ratio", "Reduce Volatility"])
 
@@ -108,7 +152,7 @@ if menu_selection == "Portfolio Analysis":
             weights_results.append(weights_result)
 
         results = pd.DataFrame({"Date": dates, "Profit": profits, "Calc_error":errors})
-        results["Total_profit"] = results["Profit"].cumsum()
+        results["Strategy profit in %"] = results["Profit"].cumsum()
 
         weights_data = (round(pd.DataFrame(weights_results),2))
         weights_data["Date"] = results["Date"]
@@ -121,9 +165,13 @@ if menu_selection == "Portfolio Analysis":
 
         data = price_data([benchmark_asset], initial_date,last_date, "Close")
         data = pd.DataFrame(data)
+        data = data.loc[data.index>=final_results.index.min()]
         data["returns"] = data["Close"].pct_change()*100
         data = data.dropna()
-        data["benchmark_profit"] = data["returns"].cumsum()
+        
+
+        data["Benchmark profit in %"] = data["returns"].cumsum()
+        benchmark_return = data["returns"].sum()
 
         if period_type == "years":
             time = "Y"
@@ -132,21 +180,26 @@ if menu_selection == "Portfolio Analysis":
         if period_type == "weeks":
             time = "W"  
 
-        data = data.resample(time).agg({"benchmark_profit":"last"})
+        data = data.resample(time).agg({"Benchmark profit in %":"last"})
 
-        max_dd = max_drawdown(final_results["Total_profit"])
+        max_dd = max_drawdown(final_results["Strategy profit in %"])
 
-
+        strategy_return = results["Profit"].sum()
         # Results
 
         st.header("Backtest results")
 
-        st.write("The Max drawdown (maximum observed loss from a peak to a trough of an investment, before a new peak is attained) is: ", f"<span style='color:orange'>{round(max_dd, 2)}%</span>", unsafe_allow_html=True)
+        st.write("The final return of the portfolio strategy was: ", f"<span style='color:green'>{round(strategy_return, 2)}%</span>", unsafe_allow_html=True)
+        st.write("The Max drawdown (maximum observed loss from a peak to a trough of an investment, before a new peak is attained) was: ", f"<span style='color:orange'>{round(max_dd, 2)}%</span>", unsafe_allow_html=True)
+        st.write("The return of the benchmark was: ", f"<span style='color:skyblue'>{round(benchmark_return, 2)}%</span>", unsafe_allow_html=True)
 
         #st.write("Profit is measured as cumulative return of prices over time in %")
-        line_chart_2_st(final_results, data, "Total_profit", "benchmark_profit", "Portfolio strategy total return vs benchmark return over time")
+        line_chart_2_st(final_results, data, "Strategy profit in %", "Benchmark profit in %", "Portfolio strategy total return vs benchmark return over time")
 
         line_chart_st(weights_data, weights_data.columns.to_list(), "Weights over time")
+
+
+
 
 
     # Portfolio in real time
@@ -157,29 +210,41 @@ if menu_selection == "Portfolio Analysis":
     own_portfolio = [asset.strip() for asset in own_portfolio_input.split(',')]
     #initial_date = st.date_input("Enter start date (just put a date bigger than your training amount):", date(2021, 1, 1))
     #last_date = st.date_input("Enter end date:", date(2024, 1, 1))
-    initial_date = "2010-01-01"
+    initial_date = "2015-01-01"
     today = date.today().strftime('%Y-%m-%d')
 
     current_date = today 
-    train_periods = st.text_input("Enter the amount of periods that you used in backtesting for training")
+    train_periods = st.text_input("Enter the numbre of periods that you used in backtesting for optimizing portfolios")
     #test_periods = st.text_input("Enter the amount of periods for testing the portfolio")
-    period_type = st.text_input("Enter the type of period you used in backtesting")
+    period_options = ["months", "weeks", "years"]
+    period_type = st.selectbox("Select the period you used in backtesting", period_options)
 
     if own_portfolio_input and train_periods and period_type:
-        train_periods = int(train_periods)
-        data_realtime = price_data(own_portfolio, initial_date,today, "Close")
-        real_time_weights, train_window = get_real_time_weights(data_realtime, initial_date, current_date, train_periods, period_type)
+        try:
+            train_periods = int(train_periods)
+            data_realtime = price_data(own_portfolio, initial_date,today, "Close")
+            real_time_weights, train_window = get_real_time_weights(data_realtime, initial_date, current_date, train_periods, period_type)
 
-        final_weights = pd.DataFrame(round(real_time_weights,4)*100).rename(columns={0: 'Weights in %'})
+            final_weights = pd.DataFrame(round(real_time_weights,4)*100).rename(columns={0: 'Weights in %'})
 
-        final_weights = round(final_weights,2)
-        st.header("Weights for the last moment where you had had to rebalance your portfolio")
-        st.table(final_weights)
+            final_weights = round(final_weights,2)
+            st.header("Weights for the last moment where you had had to rebalance your portfolio")
+            st.table(final_weights)
 
-        weights_plot_st(final_weights)
+            weights_plot_st(final_weights)
 
-        st.header("Last prices data")
-        st.table(train_window)
+            st.header("Last prices data")
+            st.write(train_window)
+        except ValueError:
+            st.warning("Please enter a valid number for the number of periods.")
+    else:
+        st.error("Please enter data properly.")
+
+    st.write("")
+    st.write("")
+    st.write("")
+    st.markdown(f"<p style='text-align:center;'>Elaborated by Edwar Valenzuela <br><br> <a href='{linkedin_url}'>Linkedin</a></p>", unsafe_allow_html=True)
+
 
 elif menu_selection == "What is Behind?":
     # Explanation text

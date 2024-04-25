@@ -60,38 +60,40 @@ def line_chart_2(backtest_results, benchmark_data, var1, var2, title, width=1000
     fig.show()
 
 def line_chart_st(data, variables_list, title, width=600, height=500, y_title=""):
-    fig = px.line()
-
+    plt.figure(figsize=(width/100, height/100))  # Convertir las dimensiones de píxeles a pulgadas
     for var in variables_list:
-        fig.add_scatter(x=data.index, y=data[var], mode='lines', name=var)
+        plt.plot(data.index, data[var], label=var)
 
-    fig.update_layout(
-        title=title,
-        xaxis_title='Date',
-        yaxis_title=y_title,
-        template='plotly_dark',
-        height=height,
-        width=width
-    )
+    plt.title(title, color='white')  # Establecer el color del título
+    plt.xlabel('Date', color='white')  # Establecer el color del texto del eje x
+    plt.ylabel(y_title, color='white')  # Establecer el color del texto del eje y
+    plt.tick_params(axis='x', colors='white')  # Establecer el color de los valores del eje x
+    plt.tick_params(axis='y', colors='white')  # Establecer el color de los valores del eje y
+    plt.legend()
+    plt.style.use('dark_background')  # Estilo oscuro
+    plt.gca().set_facecolor('#121212')  # Ajustar el color de fondo
+    plt.tight_layout()
 
-    st.plotly_chart(fig)
+    st.pyplot()
 
-def line_chart_2_st(backtest_results, benchmark_data, var1, var2, title, width=600, height=500, y_title=""):
-    fig = go.Figure()
+def line_chart_2_st(backtest_results, benchmark_data, var1, var2, title, width=6, height=5, y_title=""):
+    plt.figure(figsize=(width, height))
 
-    fig.add_trace(go.Scatter(x=backtest_results.index, y=backtest_results[var1], mode='lines', name=var1, fill="tozeroy", line=dict(color="rgba(39, 255, 54, 0.8)")))
-    fig.add_trace(go.Scatter(x=benchmark_data.index, y=benchmark_data[var2], mode='lines', name=var2, fill="tozeroy", line=dict(color="rgba(24, 172, 230, 0.5)")))
+    plt.plot(backtest_results.index, backtest_results[var1], color="lime", label=var1, alpha=0.8)
+    plt.plot(benchmark_data.index, benchmark_data[var2], color="deepskyblue", label=var2, alpha=0.5)
 
-    fig.update_layout(
-    title=title,
-    xaxis_title='Date',
-    yaxis_title=y_title,
-    template='plotly_dark',
-    height=height,
-    width=width
-    )
+    plt.title(title)
+    plt.xlabel('Date')
+    plt.ylabel(y_title)
+    plt.legend()
+    plt.grid(True, linestyle='--', alpha=0.3)
 
-    st.plotly_chart(fig)
+    plt.gca().set_facecolor('#121212')  
+    plt.xticks(color='white')  
+    plt.yticks(color='white')  
+
+    plt.tight_layout()
+    st.pyplot()
 
 def max_drawdown(columns):
     max_profit = columns.expanding().max()  
@@ -171,6 +173,7 @@ def get_results_portfolio(train_window, test_window, condition = "sharpe"):
         returns = round(returns, 2)
         
         profit = returns["pf_returns"].sum()
+        
         date_result = returns.index[-1]
         error = False
     except:
@@ -247,21 +250,20 @@ def weights_plot(final_weights):
 
     
 def weights_plot_st(final_weights):
+    plt.figure(figsize=(10, 6))
+    plt.bar(final_weights.index, final_weights['Weights in %'], color='tab:blue')
+    plt.title('Asset Weights in the Portfolio', fontsize=16, color='white')
+    plt.xlabel('Assets', fontsize=12, color='white')
+    plt.ylabel('Weights (%)', fontsize=12, color='white')
+    plt.xticks(rotation=45, color='white')
+    plt.yticks(color='white')
+    plt.gca().set_facecolor('black')
+    plt.grid(axis='y', linestyle='--', alpha=0.5)
 
-    fig = go.Figure()
+    for i, val in enumerate(final_weights['Weights in %']):
+        plt.text(i, val + 0.5, f'{val}%', color='white', ha='center', fontsize=15)
 
-    fig.add_trace(go.Bar(x=final_weights.index,
-                         y=final_weights['Weights in %'],
-                         marker_color='rgba(39, 93, 245, 0.8)',
-                         text=final_weights['Weights in %'],
-                         textposition='auto'))
+    plt.tight_layout()
 
-    fig.update_layout(title='Asset Weights in the Portfolio',
-                      xaxis=dict(title='Assets', tickangle=45),
-                      yaxis=dict(title='Weights (%)'),
-                      template='plotly_dark',
-                      autosize=False,
-                      width=600,
-                      height=500)
-
-    st.plotly_chart(fig)
+    # Mostrar el gráfico
+    st.pyplot()
