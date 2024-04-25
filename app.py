@@ -72,7 +72,6 @@ if menu_selection == "Portfolio Analysis":
     initial_date = st.date_input("Enter start date:", date(2023, 1, 1))
     last_date = st.date_input("Enter end date:", date(2024, 1, 1))
 
-    data = pd.DataFrame
 
     if own_portfolio_input:
         if validate_tickers(own_portfolio):
@@ -131,7 +130,7 @@ if menu_selection == "Portfolio Analysis":
     elif condition == "Reduce Volatility":
         pf_condition = "volatility"
 
-    if train_periods and test_periods and period_type and benchmark_asset:
+    if train_periods and test_periods and period_type and benchmark_asset and own_portfolio_input:
         train_periods = int(train_periods)
         test_periods = int(test_periods)
 
