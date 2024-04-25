@@ -136,15 +136,22 @@ def generate_windows(data, initial_date, last_date, train_periods, test_periods,
     
     return windows_train, windows_test
 
-def get_results_portfolio(train_window, test_window):
+def get_results_portfolio(train_window, test_window, condition = "sharpe"):
 
     mu = expected_returns.mean_historical_return(train_window)
     sigma = risk_models.sample_cov(train_window)
     
     ef = EfficientFrontier(mu, sigma)
 
+    if condition == "sharpe":
+        pf_condition = ef.max_sharpe()
+    elif condition == "volatility":
+        pf_condition = ef.min_volatility()
+    else:
+        pass
+
     try:
-        weights = ef.max_sharpe()
+        weights = pf_condition
         weights_array = pd.Series(weights)
     except Exception as e:
         # Use equal weights in error case
