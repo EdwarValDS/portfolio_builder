@@ -267,11 +267,11 @@ def weights_plot(final_weights):
 def weights_plot_st(final_weights):
     plt.figure(figsize=(10, 6))
     plt.bar(final_weights.index, final_weights['Weights in %'], color='tab:blue')
-    plt.title('Asset Weights in the Portfolio', fontsize=16, color='black')
-    plt.xlabel('Assets', fontsize=12, color='black')
-    plt.ylabel('Weights (%)', fontsize=12, color='black')
-    plt.xticks(rotation=45, color='black')
-    plt.yticks(color='black')
+    plt.title('Asset Weights in the Portfolio', fontsize=16, color='white')
+    plt.xlabel('Assets', fontsize=12, color='white')
+    plt.ylabel('Weights (%)', fontsize=12, color='white')
+    plt.xticks(rotation=45, color='white')
+    plt.yticks(color='white')
  
     plt.grid(axis='y', linestyle='--', alpha=0.5)
     plt.gca().set_facecolor('#121212') 
