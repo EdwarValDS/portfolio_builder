@@ -157,22 +157,21 @@ def get_results_portfolio(train_window, test_window, rf_rate, pf_condition="shar
         elif pf_condition == "max_volatility" and max_volatility is not None:
             condition = ef.efficient_risk(max_volatility)
     except Exception as e:
-        print("Error during portfolio optimization:", e)
-        # Si ocurre un error durante la optimización de la cartera, establecemos pf_condition en "volatility" y optimizamos en función de la volatilidad mínima
-        pf_condition = "volatility"
-        condition = ef.min_volatility()
-
-    try:
-        weights = condition
-        weights_array = pd.Series(weights)
-    except:
-        # En caso de error al calcular los pesos, intentamos optimizar en función de la volatilidad mínima
         try:
-            weights = ef.min_volatility()
-            weights_array = pd.Series(weights, index=mu.index)
+        #print("Error during portfolio optimization:", e)
+        # Si ocurre un error durante la optimización de la cartera, establecemos pf_condition en "volatility" y optimizamos en función de la volatilidad mínima
+            pf_condition = "volatility"
+            condition = ef.min_volatility()
         except:
-            # Si no podemos calcular los pesos, establecemos todos los pesos en 0
-            weights_array = pd.Series([0] * len(mu), index=mu.index)
+            pf_condition = "equal_weights"
+            n_assets = len(mu)
+            equal_weights = np.array([1/n_assets] * n_assets)
+            condition = equal_weights
+
+    if pf_condition == "equal_weights":
+        weights_array = pd.Series(equal_weights, index=mu.index)
+    else:
+        weights_array = pd.Series(condition, index=mu.index)
 
     returns = test_window.pct_change()
     
@@ -229,23 +228,34 @@ def get_real_time_weights(data, initial_date, current_date, train_periods, perio
                 condition = ef.efficient_return(target_return)
             elif pf_condition == "max_volatility" and max_volatility is not None:
                 condition = ef.efficient_risk(max_volatility)
-        #except Exception as e:
-        except:
-            #print("Error during portfolio optimization:", e)
-            pf_condition = "volatility"
-            condition = ef.min_volatility()
-
-        try:
-            weights = condition
-            weights_array = pd.Series(weights)
         except Exception as e:
-            # Use equal weights in error case
             try:
-                weights = [1 / len(mu)] * len(mu)
-                weights_array = pd.Series(weights, index=mu.index)
+            #print("Error during portfolio optimization:", e)
+            # Si ocurre un error durante la optimización de la cartera, establecemos pf_condition en "volatility" y optimizamos en función de la volatilidad mínima
+                pf_condition = "volatility"
+                condition = ef.min_volatility()
             except:
-                # If weights cannot be calculated, set all weights to 0
-                weights_array = pd.Series([0] * len(mu), index=mu.index)
+                pf_condition = "equal_weights"
+                n_assets = len(mu)
+                equal_weights = np.array([1/n_assets] * n_assets)
+                condition = equal_weights
+
+        if pf_condition == "equal_weights":
+            weights_array = pd.Series(equal_weights, index=mu.index)
+        else:
+            weights_array = pd.Series(condition, index=mu.index)
+
+        #try:
+        #    weights = condition
+        #    weights_array = pd.Series(weights)
+        #except Exception as e:
+        #    # Use equal weights in error case
+        #    try:
+        #        weights = [1 / len(mu)] * len(mu)
+        #        weights_array = pd.Series(weights, index=mu.index)
+        #    except:
+        #        # If weights cannot be calculated, set all weights to 0
+        #        weights_array = pd.Series([0] * len(mu), index=mu.index)
         
         if period_type == "weeks":
             start_date += pd.DateOffset(weeks=1)

@@ -26,9 +26,6 @@ menu_selection = st.sidebar.radio("Navigation", ["Portfolio Analysis", "Theory"]
 linkedin_url = "https://www.linkedin.com/in/edwar-valenzuela/?originalSubdomain=co"
 
 
-
-
-
 #st.sidebar.markdown(f"[Linkedin]({linkedin_url})")
 
 
@@ -39,12 +36,20 @@ if menu_selection == "Portfolio Analysis":
     st.header("Logic behind", divider="gray")
     st.write("")
 
+    #st.markdown("""
+    #<div style="text-align: justify">
+    #    <p>When it comes to optimizing a portfolio, the question arises of how much past data to use, how often to rebalance, or which assets represent a better portfolio. When an optimal portfolio is found in the past, whether seeking to reduce volatility or maximize profit, there's a risk of over-optimization that may not guarantee the same results in the future.</p>
+    #    <p>However, there are techniques that can enable better decision-making when it comes to portfolio management. By using rolling window data splitting, this application allows you to simulate portfolio strategies by specifying the size of the dataset to optimize portfolios, test the portfolio itself over a certain number of periods, and determine an optimal period for rebalancing the portfolio. All of this through backtesting based on the amount of data you specify to download from the past.</p>
+    #    <p>Afterwards, you can infer what the performance of your portfolio strategy would have been using a certain amount of past data and having rebalanced the portfolio at regular intervals. Similarly, you can decide whether to maximize returns or reduce risk by comparing the performance of the strategy with different weights used over time against an index or benchmark such as the S&P500.</p>
+    #    <p>In the graph, you can observe the logic behind portfolio construction and testing. In this case, data from 2023 to 2024 of 3 assets was used. The first 3 months are used to find an optimal portfolio, then 1 month to find the portfolio's performance as if you had invested in real-time. This process is repeated throughout the year, with monthly rebalancing. You can specify these parameters when testing the portfolio strategy in the past.</p>
+    #</div>
+    #""", unsafe_allow_html=True)
+
     st.markdown("""
     <div style="text-align: justify">
-        <p>When it comes to optimizing a portfolio, the question arises of how much past data to use, how often to rebalance, or which assets represent a better portfolio. When an optimal portfolio is found in the past, whether seeking to reduce volatility or maximize profit, there's a risk of over-optimization that may not guarantee the same results in the future.</p>
-        <p>However, there are techniques that can enable better decision-making when it comes to portfolio management. By using rolling window data splitting, this application allows you to simulate portfolio strategies by specifying the size of the dataset to optimize portfolios, test the portfolio itself over a certain number of periods, and determine an optimal period for rebalancing the portfolio. All of this through backtesting based on the amount of data you specify to download from the past.</p>
-        <p>Afterwards, you can infer what the performance of your portfolio strategy would have been using a certain amount of past data and having rebalanced the portfolio at regular intervals. Similarly, you can decide whether to maximize returns or reduce risk by comparing the performance of the strategy with different weights used over time against an index or benchmark such as the S&P500.</p>
-        <p>In the graph, you can observe the logic behind portfolio construction and testing. In this case, data from 2023 to 2024 of 3 assets was used. The first 3 months are used to find an optimal portfolio, then 1 month to find the portfolio's performance as if you had invested in real-time. This process is repeated throughout the year, with monthly rebalancing. You can specify these parameters when testing the portfolio strategy in the past.</p>
+        <p>Optimizing a portfolio involves balancing past data usage, rebalancing frequency, and asset selection. However, relying solely on historical data may not ensure future success.</p>
+        <p>This app offers a rolling window data splitting technique for simulating portfolio strategies. You can specify dataset size, test performance over periods, and determine rebalancing frequency. Backtesting is supported using historical data.</p>
+        <p>Also, you can evaluate strategy performance using historical data and compare against benchmarks like the S&P500. The next graph illustrates an instance of portfolio construction and testing, utilizing data from 2023 to 2024 with monthly rebalancing.</p>
     </div>
     """, unsafe_allow_html=True)
     st.write("")
@@ -55,7 +60,6 @@ if menu_selection == "Portfolio Analysis":
     file_.close()
     #"""<h2 style='text-align: center;'>Logic behind</h2>"""
     st.markdown(
-
         f'<img src="data:image/gif;base64,{data_url}" alt="cat gif">',
         unsafe_allow_html=True,
     )
@@ -63,8 +67,6 @@ if menu_selection == "Portfolio Analysis":
     st.write("")
     st.header("Initial Portfolio Analysis", divider="gray")
     st.write("")
-
-
 
     st.write("You can search tickers in https://stockanalysis.com/stocks/ or https://finance.yahoo.com/")
 
@@ -83,6 +85,7 @@ if menu_selection == "Portfolio Analysis":
     initial_date = st.date_input("Enter start date:", date(2016, 1, 1))
     last_date = st.date_input("Enter end date:", date(2024, 1, 1))
 
+    st.write("")
     if own_portfolio_input:
         with st.spinner('Getting data...'):
 
@@ -101,6 +104,7 @@ if menu_selection == "Portfolio Analysis":
                 plt.tick_params(axis='x', colors='white')  # Establecer el color de los valores del eje x
                 plt.tick_params(axis='y', colors='white') 
                 st.pyplot()
+                st.write("")
                 line_chart_st(cum_returns, cum_returns.columns.to_list(), "Assets returns over time")
             else:
                 st.error("One or more tickers not found or incorrectly written. Please check and try again.")
@@ -189,16 +193,17 @@ if menu_selection == "Portfolio Analysis":
                     pf_conds.append(pf_cond)
                     start_dates.append(start_date)
 
-                results = pd.DataFrame({"Date": end_dates, "Profit": profits, "Calc_error":errors})
-                results["Strategy profit in %"] = results["Profit"].cumsum()
+                results = pd.DataFrame({"End_date": end_dates,"Start_date": start_dates, "Period profit in %": profits})#, "Calc_error":errors})
+                results["Accumulated profit in %"] = results["Period profit in %"].cumsum()
 
                 weights_data = (round(pd.DataFrame(weights_results),2))
-                weights_data["Date"] = results["Date"]
+                weights_data["End_date"] = results["End_date"]
 
-                final_results = pd.merge(results, weights_data, on="Date")
-                final_results = final_results.set_index("Date")
-                weights_data = weights_data.set_index("Date")
+                final_results = pd.merge(results, weights_data, on="End_date")
+                final_results = final_results.set_index("End_date")
+                weights_data = weights_data.set_index("End_date")
 
+                
 
                 data = price_data([benchmark_asset], initial_date,last_date, "Close")
                 data = pd.DataFrame(data)
@@ -211,29 +216,70 @@ if menu_selection == "Portfolio Analysis":
                 benchmark_return = data["returns"].sum()
 
                 if period_type == "years":
+                    plot_1 = "year" if train_periods == 1 else "years"
+                elif period_type == "months":
+                    plot_1 = "month" if train_periods == 1 else "months"
+                elif period_type == "weeks":
+                    plot_1 = "week" if train_periods == 1 else "weeks"
+
+                if period_type == "years":
+                    plot_2 = "year" if test_periods == 1 else "years"
+                elif period_type == "months":
+                    plot_2 = "month" if test_periods == 1 else "months"
+                elif period_type == "weeks":
+                    plot_2 = "week" if test_periods == 1 else "weeks"
+
+                if period_type == "years":
                     time = "Y"
                 if period_type == "months":
                     time = "M"  
                 if period_type == "weeks":
                     time = "W"  
 
+                # Calculations
                 data = data.resample(time).agg({"Benchmark profit in %":"last"})
 
-                max_dd = max_drawdown(final_results["Strategy profit in %"])
+                max_dd = max_drawdown(final_results["Accumulated profit in %"])
 
-                strategy_return = results["Profit"].sum()
+                strategy_return = final_results["Period profit in %"].sum()
+
+                avg_return = final_results["Period profit in %"].mean()
+                std_return = final_results["Period profit in %"].std()
+                
                 # Results
 
-                st.header("Backtest results")
+                st.header("Backtest results", help="""The profit is calculated based on the accumulated return of the portfolio during the test periods. 
+                                            For this calculation, simple interest is utilized, and the same amount of capital is invested in each period.
+                                                """)
 
-                st.write("The final return of the portfolio strategy was: ", f"<span style='color:green'>{round(strategy_return, 2)}%</span>", unsafe_allow_html=True)
-                st.write("The Max drawdown (maximum observed loss from a peak to a trough of an investment, before a new peak is attained) was: ", f"<span style='color:orange'>{round(max_dd, 2)}%</span>", unsafe_allow_html=True)
-                st.write("The return of the benchmark was: ", f"<span style='color:skyblue'>{round(benchmark_return, 2)}%</span>", unsafe_allow_html=True)
+                txt_backtest = f"If you would had used the last <span style='color:orange'>{train_periods} {plot_1}</span> for optimizing your portfolio, and invested for the next <span style='color:orange'>{test_periods} {plot_2}</span>, from <span style='color:orange'>{initial_date}</span> to <span style='color:orange'>{last_date}</span>:"
+                st.write(txt_backtest, unsafe_allow_html=True)
+                
+                st.write("* The final return of the portfolio strategy would had been: ", f"<span style='color:green'>{round(strategy_return, 2)}%</span>", unsafe_allow_html=True)
+                st.write(f"* The average return of the portfolio strategy for each {test_periods} {plot_2} would had been: ", f"<span style='color:skyblue'>{round(avg_return, 2)}%</span>", unsafe_allow_html=True)
+                st.write(f"* The standard deviation of the portfolio strategy return for each {test_periods} {plot_2} would had been: ", f"<span style='color:skyblue'>{round(std_return, 2)}%</span>", unsafe_allow_html=True)
 
+                st.write("* The Max drawdown (maximum observed loss from a peak to a trough of an investment, before a new peak is attained) would had been: ", f"<span style='color:red'>{round(max_dd, 2)}%</span>", unsafe_allow_html=True)
+                st.write("* The return of the benchmark was: ", f"<span style='color:skyblue'>{round(benchmark_return, 2)}%</span>", unsafe_allow_html=True)
+
+                st.write("")
                 #st.write("Profit is measured as cumulative return of prices over time in %")
-                line_chart_2_st(final_results, data, "Strategy profit in %", "Benchmark profit in %", "Portfolio strategy total return vs benchmark return over time")
-
+                line_chart_2_st(final_results, data, "Accumulated profit in %", "Benchmark profit in %", "Portfolio strategy total return vs benchmark return over time")
+                st.write("")
                 line_chart_st(weights_data, weights_data.columns.to_list(), "Weights over time")
+
+                plot_results = final_results.copy()
+                plot_results = plot_results.reset_index()
+                plot_results["Start_date"] = plot_results["Start_date"].apply(lambda x: x.strftime('%Y-%m-%d'))
+                plot_results["End_date"] = plot_results["End_date"].apply(lambda x: x.strftime('%Y-%m-%d'))
+                nuevas_columnas = ['Start_date', 'End_date'] + [col for col in plot_results.columns if col not in ['Start_date', 'End_date']]
+                plot_results = plot_results.reindex(columns=nuevas_columnas)
+
+                st.write("")
+                st.write("Backtest data")
+                st.write("")
+                st.write(plot_results)
+
     st.write("")
 
     # Portfolio in real time
