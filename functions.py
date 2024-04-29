@@ -110,13 +110,16 @@ def generate_windows(data, initial_date, last_date, train_periods, test_periods,
     while True:
         if period_type == "weeks":
             train_end = start_date + pd.DateOffset(weeks=train_periods)
-            test_end = train_end + pd.DateOffset(weeks=test_periods)
+            test_start = train_end
+            test_end = test_start + pd.DateOffset(weeks=test_periods)
         elif period_type == "months":
             train_end = start_date + pd.DateOffset(months=train_periods)
-            test_end = train_end + pd.DateOffset(months=test_periods)
+            test_start = train_end
+            test_end = test_start + pd.DateOffset(months=test_periods)
         elif period_type == "years":
             train_end = start_date + pd.DateOffset(years=train_periods)
-            test_end = train_end + pd.DateOffset(years=test_periods)
+            test_start = train_end
+            test_end = test_start + pd.DateOffset(years=test_periods)
         else:
             raise ValueError("Period type must be 'weeks', 'months', or 'years'")
         
@@ -124,51 +127,51 @@ def generate_windows(data, initial_date, last_date, train_periods, test_periods,
             break
         
         train_window = data.loc[(data.index >= start_date) & (data.index < train_end)]
-        test_window = data.loc[(data.index >= train_end) & (data.index < test_end)]
+        test_window = data.loc[(data.index >= test_start) & (data.index < test_end)]
         
         windows_train.append(train_window)
         windows_test.append(test_window)
         
         if period_type == "weeks":
-            start_date += pd.DateOffset(weeks=1)
+            start_date += pd.DateOffset(weeks=test_periods)  # Avanzar según el período de prueba
         elif period_type == "months":
-            start_date += pd.DateOffset(months=1)
+            start_date += pd.DateOffset(months=test_periods)  # Avanzar según el período de prueba
         elif period_type == "years":
-            start_date += pd.DateOffset(years=1)
+            start_date += pd.DateOffset(years=test_periods)  # Avanzar según el período de prueba
     
     return windows_train, windows_test
 
-def get_results_portfolio(train_window, test_window, pf_condition = "sharpe"):
-
+def get_results_portfolio(train_window, test_window, rf_rate, pf_condition="sharpe", target_return=None, max_volatility=None):
     mu = expected_returns.mean_historical_return(train_window)
     sigma = risk_models.sample_cov(train_window)
     
     ef = EfficientFrontier(mu, sigma)
 
-    #pf_condition = ef.max_sharpe()
-
     try: 
         if pf_condition == "sharpe":
-            pf_condition = ef.max_sharpe()
+            condition = ef.max_sharpe(risk_free_rate=rf_rate)
         elif pf_condition == "volatility":
-            pf_condition = ef.min_volatility()
-    except:
-        pf_condition = ef.min_volatility()
-    #else:
-    #    pass
+            condition = ef.min_volatility()
+        elif pf_condition == "target_return" and target_return is not None:
+            condition = ef.efficient_return(target_return)
+        elif pf_condition == "max_volatility" and max_volatility is not None:
+            condition = ef.efficient_risk(max_volatility)
+    except Exception as e:
+        print("Error during portfolio optimization:", e)
+        # Si ocurre un error durante la optimización de la cartera, establecemos pf_condition en "volatility" y optimizamos en función de la volatilidad mínima
+        pf_condition = "volatility"
+        condition = ef.min_volatility()
+
     try:
-        weights = pf_condition
+        weights = condition
         weights_array = pd.Series(weights)
     except:
-        # Use equal weights in error case
+        # En caso de error al calcular los pesos, intentamos optimizar en función de la volatilidad mínima
         try:
-            try:
-                weights = ef.min_volatility()
-            except:
-                weights = [1 / len(mu)] * len(mu)
-                weights_array = pd.Series(weights, index=mu.index)
+            weights = ef.min_volatility()
+            weights_array = pd.Series(weights, index=mu.index)
         except:
-            # If weights cannot be calculated, set all weights to 0
+            # Si no podemos calcular los pesos, establecemos todos los pesos en 0
             weights_array = pd.Series([0] * len(mu), index=mu.index)
 
     returns = test_window.pct_change()
@@ -181,16 +184,19 @@ def get_results_portfolio(train_window, test_window, pf_condition = "sharpe"):
         
         profit = returns["pf_returns"].sum()
         
+        start_dt = returns.index.min()
         date_result = returns.index[-1]
         error = False
     except:
         profit = 0
+        start_dt = returns.index.min()
         date_result = returns.index[-1]
         error = True
 
-    return profit, date_result, error, weights_array
+    return profit, date_result, error, weights_array, pf_condition, start_dt
 
-def get_real_time_weights(data, initial_date, current_date, train_periods, period_type="months", pf_condition = "sharpe"):
+def get_real_time_weights(data, initial_date, current_date, train_periods, period_type="months", pf_condition = "sharpe",
+                          rf_rate=0, target_return=None, max_volatility=None):
     start_date = pd.to_datetime(initial_date)
     end_date = pd.to_datetime(current_date)
     
@@ -216,14 +222,21 @@ def get_real_time_weights(data, initial_date, current_date, train_periods, perio
 
         try: 
             if pf_condition == "sharpe":
-                pf_condition = ef.max_sharpe()
+                condition = ef.max_sharpe(risk_free_rate=rf_rate)
             elif pf_condition == "volatility":
-                pf_condition = ef.min_volatility()
+                condition = ef.min_volatility()
+            elif pf_condition == "target_return" and target_return is not None:
+                condition = ef.efficient_return(target_return)
+            elif pf_condition == "max_volatility" and max_volatility is not None:
+                condition = ef.efficient_risk(max_volatility)
+        #except Exception as e:
         except:
-            pf_condition = ef.min_volatility()
+            #print("Error during portfolio optimization:", e)
+            pf_condition = "volatility"
+            condition = ef.min_volatility()
 
         try:
-            weights = pf_condition
+            weights = condition
             weights_array = pd.Series(weights)
         except Exception as e:
             # Use equal weights in error case
