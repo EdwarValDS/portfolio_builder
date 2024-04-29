@@ -308,7 +308,7 @@ if menu_selection == "Portfolio Analysis":
     st.write("")
     st.write("")
     st.write("")
-    st.markdown(f"<p style='text-align:center;'>Elaborated by Edwar Valenzuela <br><br> <a href='{linkedin_url}'>Linkedin</a></p>", unsafe_allow_html=True)
+    st.markdown(f"<p style='text-align:center;'>Developed by Edwar Valenzuela <br><br> <a href='{linkedin_url}'>Linkedin</a></p>", unsafe_allow_html=True)
 
     st.write("")
     st.write("")
