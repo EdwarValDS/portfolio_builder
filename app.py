@@ -113,8 +113,8 @@ try:
                         st.error("One or more tickers not found or incorrectly written. Please check and try again.")
             else:
                 st.warning("Please enter assets before attempting to download data.")
-		except:
-			st.warning("Error found")
+	except:
+             st.warning("Error found")
         st.write("")
         #st.write(data)
 
