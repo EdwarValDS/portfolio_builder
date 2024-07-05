@@ -88,33 +88,31 @@ try:
         last_date = st.date_input("Enter end date:", date(2024, 1, 1))
 
         st.write("")
-        try: 
-            if own_portfolio_input:
-                with st.spinner('Getting data...'):
+        if own_portfolio_input:
+            with st.spinner('Getting data...'):
 
-                    if validate_tickers(own_portfolio):
+                if validate_tickers(own_portfolio):
                     # Get price data
-                        data = price_data(own_portfolio, initial_date, last_date, "Close")
+                    data = price_data(own_portfolio, initial_date, last_date, "Close")
                     # Continue with data analysis
-                        correlations = data.corr()
-                        returns = data.pct_change()
-                        cum_returns = returns.dropna().cumsum()*100
+                    correlations = data.corr()
+                    returns = data.pct_change()
+                    cum_returns = returns.dropna().cumsum()*100
                     # Show the correlation matrix
-                        sns.set_style("white")
-                        plt.figure(figsize=(10, 8))
-                        ax = sns.heatmap(correlations, annot=True)
-                        plt.title('Correlation Matrix', color="white")
-                        plt.tick_params(axis='x', colors='white')  # Establecer el color de los valores del eje x
-                        plt.tick_params(axis='y', colors='white') 
-                        st.pyplot()
-                        st.write("")
-                        line_chart_st(cum_returns, cum_returns.columns.to_list(), "Assets returns over time")
-                    else:
-                        st.error("One or more tickers not found or incorrectly written. Please check and try again.")
-            else:
-                st.warning("Please enter assets before attempting to download data.")
-	except:
-             st.warning("Error found")
+                    sns.set_style("white")
+                    plt.figure(figsize=(10, 8))
+                    ax = sns.heatmap(correlations, annot=True)
+                    plt.title('Correlation Matrix', color="white")
+                    plt.tick_params(axis='x', colors='white')  # Establecer el color de los valores del eje x
+                    plt.tick_params(axis='y', colors='white') 
+                    st.pyplot()
+                    st.write("")
+                    line_chart_st(cum_returns, cum_returns.columns.to_list(), "Assets returns over time")
+                else:
+                    st.error("One or more tickers not found or incorrectly written. Please check and try again.")
+        else:
+            st.warning("Please enter assets before attempting to download data.")
+    
         st.write("")
         #st.write(data)
 
