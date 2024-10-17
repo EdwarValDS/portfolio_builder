@@ -4,7 +4,7 @@ try:
     from datetime import date
 
     import seaborn as sns
-    import matplotlib.pyplot as plt
+    #import matplotlib.pyplot as plt
     import base64
 
     import warnings
