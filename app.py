@@ -4,7 +4,7 @@ try:
     from datetime import date
 
     import seaborn as sns
-    #import matplotlib.pyplot as plt
+    import matplotlib.pyplot as plt
     import base64
 
     import warnings
@@ -15,11 +15,12 @@ try:
     warnings.filterwarnings("ignore")
 
     import streamlit as st
+    #st.set_option('deprecation.showPyplotGlobalUse', False)
 
 
     st.set_page_config(page_title='Portfolio Strategy Builder',page_icon='💼') #layout="wide")
 
-    st.set_option('deprecation.showPyplotGlobalUse', False)
+    #st.set_option('deprecation.showPyplotGlobalUse', False)
 
 
 

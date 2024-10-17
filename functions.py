@@ -1,7 +1,7 @@
 import pandas as pd
 import yfinance as yf
 import numpy as np
-#import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 import seaborn as sns
 #import subprocess
 #subprocess.run(["git", "clone", "https://github.com/robertmartin8/PyPortfolioOpt.git"])
