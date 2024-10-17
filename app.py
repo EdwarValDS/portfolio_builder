@@ -91,6 +91,7 @@ try:
         if own_portfolio_input:
             with st.spinner('Getting data...'):
 
+                    
                 if validate_tickers(own_portfolio):
                     # Get price data
                     data = price_data(own_portfolio, initial_date, last_date, "Close")
@@ -110,6 +111,7 @@ try:
                     line_chart_st(cum_returns, cum_returns.columns.to_list(), "Assets returns over time")
                 else:
                     st.error("One or more tickers not found or incorrectly written. Please check and try again.")
+
         else:
             st.warning("Please enter assets before attempting to download data.")
     

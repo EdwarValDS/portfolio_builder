@@ -18,10 +18,10 @@ import plotly.express as px
 from pandas.tseries.offsets import MonthEnd, YearEnd, Week
 
 
-
 def price_data(tickers, start_date, end_date, column):
 
     price = yf.download(tickers, start=start_date, end=end_date)[column]
+    price = price.tz_localize(None)
     price.index = pd.to_datetime(price.index)
     return price
 
