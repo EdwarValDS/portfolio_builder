@@ -74,7 +74,7 @@ def line_chart_st(data, variables_list, title, width=600, height=500, y_title=""
     plt.gca().set_facecolor('#121212')  # Ajustar el color de fondo
     plt.tight_layout()
 
-    st.pyplot(block=False)
+    st.pyplot(plt.gcf())
 
 def line_chart_2_st(backtest_results, benchmark_data, var1, var2, title, width=6, height=5, y_title=""):
     plt.figure(figsize=(width, height))
@@ -93,7 +93,7 @@ def line_chart_2_st(backtest_results, benchmark_data, var1, var2, title, width=6
     plt.yticks(color='white')  
 
     plt.tight_layout()
-    st.pyplot(block=False)
+    st.pyplot(plt.gcf())
 
 def max_drawdown(columns):
     max_profit = columns.expanding().max()  
@@ -304,4 +304,4 @@ def weights_plot_st(final_weights):
 
     plt.tight_layout()
     # Mostrar el gráfico
-    st.pyplot(block=False)
+    st.pyplot(plt.gcf())
